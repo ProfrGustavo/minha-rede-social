@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Rede Social</title>
+    <style>
+        :root {
+            --primary-color: #1877f2;
+            --bg-color: #f0f2f5;
+            --white: #ffffff;
+            --text-color: #1c1e21;
+            --secondary-text: #65676b;
+            --border-color: #dddfe2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        header {
+            background-color: var(--white);
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 24px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 10px;
+        }
+
+        .create-post {
+            background: var(--white);
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .create-post textarea {
+            width: 100%;
+            border: none;
+            background: #f0f2f5;
+            border-radius: 20px;
+            padding: 12px 16px;
+            resize: none;
+            outline: none;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .create-post button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .create-post button:hover {
+            background-color: #166fe5;
+        }
+
+        .post {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .post-header {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #ccc;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .post-info h3 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .post-info span {
+            font-size: 13px;
+            color: var(--secondary-text);
+        }
+
+        .post-content {
+            padding: 4px 16px 16px 16px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .post-actions {
+            border-top: 1px solid var(--border-color);
+            padding: 4px;
+            display: flex;
+        }
+
+        .post-actions button {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 8px;
+            color: var(--secondary-text);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .post-actions button:hover {
+            background-color: #f2f2f2;
+        }
+
+        .post-actions button.liked {
+            color: var(--primary-color);
+        }
+
+        .comments-section {
+            padding: 8px 16px;
+            border-top: 1px solid var(--border-color);
+            background: #fafafa;
+        }
+
+        .comment {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .comment b {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>RedeSocial</h1>
+    </header>
+
+    <div class="container">
+        <!-- Criar Post -->
+        <div class="create-post">
+            <textarea id="postInput" placeholder="No que você está pensando?" rows="2"></textarea>
+            <button onclick="createPost()">Publicar</button>
+        </div>
+
+        <!-- Feed -->
+        <div id="feed">
+            <!-- Posts aparecerão aqui -->
+        </div>
+    </div>
+
+    <script>
+        const feed = document.getElementById('feed');
+        const postInput = document.getElementById('postInput');
+
+        // Dados iniciais
+        let posts = [
+            {
+                id: 1,
+                author: "João Silva",
+                content: "Olá pessoal! Acabei de entrar na nova rede social. O que acharam?",
+                likes: 5,
+                liked: false,
+                comments: ["Bem-vindo!", "Ficou top!"]
+            },
+            {
+                id: 2,
+                author: "Maria Oliveira",
+                content: "Hoje o dia está lindo para programar em JavaScript! 🚀",
+                likes: 12,
+                liked: true,
+                comments: ["Com certeza!", "Bora codar!"]
+            }
+        ];
+
+        function renderPosts() {
+            feed.innerHTML = '';
+            posts.forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.className = 'post';
+                postElement.innerHTML = `
+                    <div class="post-header">
+                        <div class="avatar"></div>
+                        <div class="post-info">
+                            <h3>${post.author}</h3>
+                            <span>Agora mesmo</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        ${post.content}
+                    </div>
+                    <div class="post-actions">
+                        <button class="${post.liked ? 'liked' : ''}" onclick="toggleLike(${post.id})">
+                            👍 Curtir (${post.likes})
+                        </button>
+                        <button onclick="focusComment(${post.id})">💬 Comentar</button>
+                    </div>
+                    <div class="comments-section">
+                        ${post.comments.map(c => `<div class="comment"><b>Amigo:</b> ${c}</div>`).join('')}
+                    </div>
+                `;
+                feed.appendChild(postElement);
+            });
+        }
+
+        function createPost() {
+            const content = postInput.value.trim();
+            if (content === "") return;
+
+            const newPost = {
+                id: Date.now(),
+                author: "Você",
+                content: content,
+                likes: 0,
+                liked: false,
+                comments: []
+            };
+
+            posts.unshift(newPost);
+            postInput.value = '';
+            renderPosts();
+        }
+
+        function toggleLike(id) {
+            const post = posts.find(p => p.id === id);
+            if (post) {
+                if (post.liked) {
+                    post.likes--;
+                    post.liked = false;
+                } else {
+                    post.likes++;
+                    post.liked = true;
+                }
+                renderPosts();
+            }
+        }
+
+        function focusComment(id) {
+            alert("Funcionalidade de comentário vindo em breve!");
+        }
+
+        // Inicializar
+        renderPosts();
+    </script>
+</body>
+</html>
